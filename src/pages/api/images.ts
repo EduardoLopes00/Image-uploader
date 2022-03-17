@@ -1,8 +1,8 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import fauna from 'faunadb';
+import { query } from 'faunadb'
 
-const { query } = fauna;
-const client = new fauna.Client({ secret: process.env.FAUNA_API_KEY });
+import { client } from '../../services/fauna';
 
 interface ImagesQueryResponse {
   after?: {
@@ -48,20 +48,25 @@ export default async function handler(
       );
   }
 
-  if (req.method === 'GET') {
+  if (req.method === 'GET') {    
     const { after } = req.query;
+
+
+    
 
     const queryOptions = {
       size: 6,
-      ...(after && { after: query.Ref(query.Collection('images'), after) }),
+      ...(after && { 
+          after: query.Ref(query.Collection('images'), after) 
+      }),
     };
 
-    return client
+    const result = await client
       .query<ImagesQueryResponse>(
         query.Map(
           query.Paginate(
             query.Documents(query.Collection('images')),
-            queryOptions
+            queryOptions,
           ),
           query.Lambda('X', query.Get(query.Var('X')))
         )
@@ -81,6 +86,8 @@ export default async function handler(
       .catch(err => {
         return res.status(400).json(err);
       });
+
+    return result;
   }
 
   return res.status(405).json({ error: `Method '${req.method}' Not Allowed` });
