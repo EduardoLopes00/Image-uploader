@@ -51,9 +51,6 @@ export default async function handler(
   if (req.method === 'GET') {    
     const { after } = req.query;
 
-
-    
-
     const queryOptions = {
       size: 6,
       ...(after && { 
