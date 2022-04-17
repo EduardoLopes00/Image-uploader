@@ -1,14 +1,21 @@
 import { Box, Button, Stack, useToast } from '@chakra-ui/react';
-import { useForm } from 'react-hook-form';
+import { useForm, UseFormRegisterReturn } from 'react-hook-form';
 import { useState } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
 
 import { api } from '../../services/api';
 import { FileInput } from '../Input/FileInput';
 import { TextInput } from '../Input/TextInput';
+import { m } from 'framer-motion';
 
 interface FormAddImageProps {
   closeModal: () => void;
+}
+
+type FormInputs = {
+  img: UseFormRegisterReturn;
+  title: UseFormRegisterReturn;
+  description: UseFormRegisterReturn;  
 }
 
 export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
@@ -44,7 +51,16 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
     setError,
     trigger,
   } = useForm();
+
+  const {img, title, description}: FormInputs = {
+    img: register('img'),
+    title: register('title'),
+    description: register('description')
+  }
+
   const { errors } = formState;
+  
+
 
   const onSubmit = async (data: Record<string, unknown>): Promise<void> => {
     try {
@@ -67,6 +83,7 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
           setLocalImageUrl={setLocalImageUrl}
           setError={setError}
           trigger={trigger}
+
           // TODO SEND IMAGE ERRORS
           // TODO REGISTER IMAGE INPUT WITH VALIDATIONS
         />
