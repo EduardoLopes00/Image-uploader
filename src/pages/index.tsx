@@ -17,13 +17,13 @@ type Image = {
 }
 
 export default function Home(): JSX.Element {
-  
+
   const fetchImages = async ({ pageParam = 0 }) => api.get(`/images?after=${pageParam}`);
-  
-  const [allImages, setAllImages] = useState<Image[]>([]) 
+
+  const [allImages, setAllImages] = useState<Image[]>([])
 
 
-  const { //Initial request to retrieve the data 
+  const { //Initial request to retrieve the data
     data,
     isLoading,
     isError,
@@ -35,23 +35,17 @@ export default function Home(): JSX.Element {
     fetchImages
     ,
     {
-     getNextPageParam: (pages) => pages.data.after ?? null      
+     getNextPageParam: (pages) => pages.data.after ?? null
     }
   );
 
-  
-  const formattedData = useMemo(() => { 
+
+  const formattedData = useMemo(() => {
    setAllImages(data?.pages.map( (page) => {
     return page.data.data.flat()
    }).flat())
-    
-  }, [data]);
 
-  console.log('isLoading ', isLoading);
-  console.log('isError ', isError);
-  console.log('isFetchingNextPage ', isFetchingNextPage);
-  console.log('fetchNextPage ', fetchNextPage);
-  console.log('hasNextPage ', hasNextPage);  
+  }, [data]);
 
   return (
     <>
@@ -59,15 +53,15 @@ export default function Home(): JSX.Element {
 
       <Box maxW={1120} px={20} mx="auto" my={20}>
         {isError && <Error />}
-        
-        {isLoading && 
+
+        {isLoading &&
           <Center >
             <Text size='xl' color='orange'>Carregando aplicação...</ Text>
           </Center>
         }
 
         {!isError && <CardList cards={allImages}/>}
-        
+
         {hasNextPage && !isError && <Center >
           <Button onClick={() => fetchNextPage()} isLoading={isFetchingNextPage} mt={10}>Load more...</Button>
         </Center> }

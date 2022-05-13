@@ -13,10 +13,11 @@ interface FormAddImageProps {
 }
 
 type FormInputs = {
-  img: UseFormRegisterReturn;
-  title: UseFormRegisterReturn;
-  description: UseFormRegisterReturn;  
+  img: string;
+  title: string;
+  description: string;
 }
+
 
 export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
   const [imageUrl, setImageUrl] = useState('');
@@ -41,28 +42,28 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
     {
       // TODO ONSUCCESS MUTATION
     }
-  );
+    );
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState,
-    setError,
-    trigger,
-  } = useForm();
+    const {
+      register,
+      handleSubmit,
+      reset,
+      formState,
+      setError,
+      trigger,
+    } = useForm<FormInputs>();
 
-  const {img, title, description}: FormInputs = {
-    img: register('img'),
-    title: register('title'),
-    description: register('description')
-  }
+    function onChange() {
 
-  const { errors } = formState;
-  
 
+      console.log(formState)
+    }
+
+    const { errors } = formState;
 
   const onSubmit = async (data: Record<string, unknown>): Promise<void> => {
+    console.log(data);
+
     try {
       // TODO SHOW ERROR TOAST IF IMAGE URL DOES NOT EXISTS
       // TODO EXECUTE ASYNC MUTATION
@@ -77,12 +78,13 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
   return (
     <Box as="form" width="100%" onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={4}>
-        <FileInput
+        <FileInput 
           setImageUrl={setImageUrl}
           localImageUrl={localImageUrl}
           setLocalImageUrl={setLocalImageUrl}
           setError={setError}
           trigger={trigger}
+          {...register('img')}
 
           // TODO SEND IMAGE ERRORS
           // TODO REGISTER IMAGE INPUT WITH VALIDATIONS
@@ -90,12 +92,16 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
 
         <TextInput
           placeholder="Título da imagem..."
+          {...register('title')}
+
           // TODO SEND TITLE ERRORS
           // TODO REGISTER TITLE INPUT WITH VALIDATIONS
         />
 
         <TextInput
           placeholder="Descrição da imagem..."
+          {...register('description')}
+
           // TODO SEND DESCRIPTION ERRORS
           // TODO REGISTER DESCRIPTION INPUT WITH VALIDATIONS
         />
@@ -105,6 +111,7 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
         my={6}
         isLoading={formState.isSubmitting}
         isDisabled={formState.isSubmitting}
+        onClick={onChange}
         type="submit"
         w="100%"
         py={6}
