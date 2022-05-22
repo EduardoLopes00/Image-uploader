@@ -1,6 +1,6 @@
 import { Box, Button, Stack, useToast } from '@chakra-ui/react';
 import { useForm, UseFormRegisterReturn } from 'react-hook-form';
-import { useState } from 'react';
+import { ChangeEvent, useState } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
 
 import { api } from '../../services/api';
@@ -10,12 +10,6 @@ import { m } from 'framer-motion';
 
 interface FormAddImageProps {
   closeModal: () => void;
-}
-
-type FormInputs = {
-  img: string;
-  title: string;
-  description: string;
 }
 
 
@@ -51,19 +45,11 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
       formState,
       setError,
       trigger,
-    } = useForm<FormInputs>();
-
-    function onChange() {
-
-
-      console.log(formState)
-    }
+    } = useForm();
 
     const { errors } = formState;
 
   const onSubmit = async (data: Record<string, unknown>): Promise<void> => {
-    console.log(data);
-
     try {
       // TODO SHOW ERROR TOAST IF IMAGE URL DOES NOT EXISTS
       // TODO EXECUTE ASYNC MUTATION
@@ -75,6 +61,13 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
     }
   };
 
+  const readEvent = (event: ChangeEvent<HTMLInputElement>) => {
+    console.log(event);
+    
+    
+    return new Promise<boolean | void>((resolve, reject) => {resolve(true), reject(err => {console.log(err)})})
+  }
+
   return (
     <Box as="form" width="100%" onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={4}>
@@ -84,7 +77,7 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
           setLocalImageUrl={setLocalImageUrl}
           setError={setError}
           trigger={trigger}
-          {...register('img')}
+          {...register('img')}          
 
           // TODO SEND IMAGE ERRORS
           // TODO REGISTER IMAGE INPUT WITH VALIDATIONS
@@ -110,8 +103,7 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
       <Button
         my={6}
         isLoading={formState.isSubmitting}
-        isDisabled={formState.isSubmitting}
-        onClick={onChange}
+        isDisabled={formState.isSubmitting}        
         type="submit"
         w="100%"
         py={6}
