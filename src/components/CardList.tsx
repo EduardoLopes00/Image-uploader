@@ -21,16 +21,16 @@ export function CardList({ cards }: CardsProps): JSX.Element {
   const [selectedImage, setSelectedImage] = useState<string>('');
 
   function handleViewImage(url) {
-    setSelectedImage(url); 
+    setSelectedImage(url);
     onOpen();
-  } 
+  }
 
   return (
     <>
       <SimpleGrid columns={3} gap={'40px'}>
         {cards?.map((card: Card) => {
-          return <Card viewImage={handleViewImage} data={card}/>
-        })} 
+          return <Card key={card.id} viewImage={handleViewImage} data={card}/>
+        })}
       </SimpleGrid >
 
       <ModalViewImage isOpen={isOpen} onClose={onClose} imgUrl={selectedImage}/>
