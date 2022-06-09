@@ -1,13 +1,11 @@
 import { Box, Button, Stack, useToast, UseToastOptions } from '@chakra-ui/react';
-import { useForm, UseFormRegisterReturn } from 'react-hook-form';
-import { ChangeEvent, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { useState } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
 
 import { api } from '../../services/api';
 import { FileInput } from '../Input/FileInput';
 import { TextInput } from '../Input/TextInput';
-import { m } from 'framer-motion';
-import { client } from '../../services/fauna';
 
 interface FormAddImageProps {
   closeModal: () => void;
@@ -27,6 +25,11 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
   const [imageUrl, setImageUrl] = useState('');
   const [localImageUrl, setLocalImageUrl] = useState('');
   const toast = useToast();
+
+  function cleanAllStates() {
+    setImageUrl('')
+    setLocalImageUrl('')
+  }
 
   function buildToast(title: string, description: string, status: ToastsStatus) {
 
@@ -74,8 +77,7 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
 
     {
       onSuccess: () => {
-        queryClient.invalidateQueries('todos')
-        queryClient.invalidateQueries('reminders')
+        queryClient.invalidateQueries('images')
       }
     }
   );
@@ -92,8 +94,6 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
   const { errors } = formState;
 
   const onSubmit = async (data: Record<string, unknown>): Promise<void> => {
-
-    console.dir(data)
     try {
       if (!imageUrl) {
         buildToast('Imagem não adicionada', 'É preciso adicionar e aguardar o upload de uma imagem antes de realizar o cadastro', 'info')
@@ -106,13 +106,14 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
 
       buildToast('Imagem cadastrada', 'imagem foi cadastrada com sucesso', 'success')
 
+
     } catch {
       buildToast('Falha no cadastro', 'Ocorreu um erro ao tentar cadastrar a sua imagem.', 'error')
-    } finally {
-      reset
-      queryClient
 
-      // TODO CLEAN FORM, STATES AND CLOSE MODAL
+    } finally {
+      reset()
+      cleanAllStates()
+      closeModal()
     }
   };
 

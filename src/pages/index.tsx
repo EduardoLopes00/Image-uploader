@@ -8,20 +8,16 @@ import { api } from '../services/api';
 import { Loading } from '../components/Loading';
 import { Error } from '../components/Error';
 
-type Image = {
-  description: string
-  id: string
-  title: string
-  ts: number
-  url: string
-}
-
 export default function Home(): JSX.Element {
+  const fetchImages = async ({ pageParam = 0 }) => {
+    const { data: images } = await api.get(`/images`, {
+      params: {
+        after: pageParam
+      }
+    })
 
-  const fetchImages = async ({ pageParam = 0 }) => api.get(`/images?after=${pageParam}`);
-
-  const [allImages, setAllImages] = useState<Image[]>([])
-
+    return images;
+  }
 
   const { //Initial request to retrieve the data
     data,
@@ -32,40 +28,40 @@ export default function Home(): JSX.Element {
     hasNextPage,
   } = useInfiniteQuery(
     'images',
-    fetchImages
-    ,
+    fetchImages,
     {
-     getNextPageParam: (pages) => pages.data.after ?? null
+     getNextPageParam: (pages) => pages.after ?? null
     }
   );
 
-
   const formattedData = useMemo(() => {
-   setAllImages(data?.pages.map( (page) => {
-    return page.data.data.flat()
-   }).flat())
-
+    return data?.pages.map(page => page.data).flat();
   }, [data]);
+
+  if (isLoading) {
+    return <Loading />;
+  }
+
+  if (isError) {
+    return <Error />;
+  }
 
   return (
     <>
       <Header />
 
       <Box maxW={1120} px={20} mx="auto" my={20}>
-        {isError && <Error />}
+        <CardList cards={formattedData}/>
 
-        {isLoading &&
-          <Center >
-            <Text size='xl' color='orange'>Carregando aplicação...</ Text>
-          </Center>
+        {hasNextPage &&
+          <Button onClick={() => fetchNextPage()}
+                  loadingText='Carregando...'
+                  isLoading={isFetchingNextPage}
+                  mt={10}
+                  >
+                    Carregar mais
+          </Button>
         }
-
-        {!isError && <CardList cards={allImages}/>}
-
-        {hasNextPage && !isError && <Center >
-          <Button onClick={() => fetchNextPage()} isLoading={isFetchingNextPage} mt={10}>Load more...</Button>
-        </Center> }
-
       </Box>
     </>
   );
